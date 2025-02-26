@@ -1,0 +1,9 @@
+LOCATION=swedencentral
+DEPLOYMENT_NAME=custom-devbox-image-01
+RG=rg-devbox-test
+
+az deployment group create \
+       --template-file main.bicep \
+       --resource-group $RG \
+       --name $DEPLOYMENT_NAME \
+       --parameters main.bicepparam
