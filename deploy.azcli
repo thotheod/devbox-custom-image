@@ -1,4 +1,5 @@
 LOCATION=swedencentral
+# change also the name in BICEPPARAM to follow the index number
 DEPLOYMENT_NAME=custom-devbox-image-05
 RG=rg-devbox-test
 
