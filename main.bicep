@@ -211,28 +211,29 @@ resource imageTemplateBuild 'Microsoft.Resources/deploymentScripts@2023-08-01' =
   }
 }
 
-// resource imageTemplateStatusQuery 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
-//   name: resourceNames.queryTemplateProgress
-//   location: location
-//   kind: 'AzurePowerShell'
-//   identity: {
-//     type: 'UserAssigned'
-//     userAssignedIdentities: {
-//       '${imgBuilderIdentity.id}': {}
-//     }
-//   }
-//   properties: {
-//     azPowerShellVersion: '8.3'
-//     scriptContent: 'Connect-AzAccount -Identity; \'Az.ImageBuilder\', \'Az.ManagedServiceIdentity\' | ForEach-Object {Install-Module -Name $_ -AllowPrerelease -Force}; $status=\'Started\'; while ($status -ne \'Succeeded\' -and $status -ne \'Failed\' -and $status -ne \'Cancelled\') { Start-Sleep -Seconds 30;$status = (Get-AzImageBuilderTemplate -ImageTemplateName ${resourceNames.imageTemplateName} -ResourceGroupName ${resourceGroup().name}).LastRunStatusRunState}'  
-//     timeout: 'PT3H'
-//     cleanupPreference: 'OnSuccess'
-//     retentionInterval: 'P1D'
-//   }
-//   dependsOn: [
-//     imageTemplate
-//     imageTemplateBuild
-//   ]
-// }
+@description('The status of the image template build. It takes around 60+ minutes to complete, so with this the deployment stays active and waits for the image to be built.')
+resource imageTemplateStatusQuery 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
+  name: resourceNames.queryTemplateProgress
+  location: location
+  kind: 'AzurePowerShell'
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${imgBuilderIdentity.id}': {}
+    }
+  }
+  properties: {
+    azPowerShellVersion: '8.3'
+    scriptContent: 'Connect-AzAccount -Identity; \'Az.ImageBuilder\', \'Az.ManagedServiceIdentity\' | ForEach-Object {Install-Module -Name $_ -AllowPrerelease -Force}; $status=\'Started\'; while ($status -ne \'Succeeded\' -and $status -ne \'Failed\' -and $status -ne \'Cancelled\') { Start-Sleep -Seconds 30;$status = (Get-AzImageBuilderTemplate -ImageTemplateName ${resourceNames.imageTemplateName} -ResourceGroupName ${resourceGroup().name}).LastRunStatusRunState}'  
+    timeout: 'PT3H'
+    cleanupPreference: 'OnSuccess'
+    retentionInterval: 'P1D'
+  }
+  dependsOn: [
+    imageTemplate
+    imageTemplateBuild
+  ]
+}
 
 
 // TODO: Check if withe existing works
