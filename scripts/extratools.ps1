@@ -27,31 +27,6 @@ if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
     Write-Host "winget is already installed."
 }
 
-##########################
-## Install choco packages
-##########################
-
-## Tooling List
-$tools = @(
-            "sql-server-management-studio", 
-            "adobereader",  
-            "azure-cli", 
-            "notepadplusplus",
-            "postman",
-            "nodejs.install",
-            "git.install",
-            "gh"
-        )
-
-## Install extra Tools with Chocolatey
-foreach ($t in $tools) {
-    try {
-        choco install -y $t 2>$null
-        Write-Host "Installed: $t"
-    } catch {
-        Write-Host "An error occurred during the installation of $t."
-    }
-}
 
 ##########################
 ## Enable WSL
@@ -84,6 +59,37 @@ try {
 } catch {
     Write-Host "An error occurred while setting WSL default version to 2."
 }
+
+
+##########################
+## Install choco packages
+##########################
+
+## Tooling List
+$tools = @(
+            "sql-server-management-studio", 
+            "adobereader",  
+            "azure-cli", 
+            "notepadplusplus",
+            "postman",
+            "nodejs.install",
+            "git.install",
+            "gh",
+            "wsl-ubuntu-2004".
+            "googlechrome"
+        )
+
+## Install extra Tools with Chocolatey
+foreach ($t in $tools) {
+    try {
+        choco install -y $t 2>$null
+        Write-Host "Installed: $t"
+    } catch {
+        Write-Host "An error occurred during the installation of $t."
+    }
+}
+
+
 
 ##########################
 ## winget installations
