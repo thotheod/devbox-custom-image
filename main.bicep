@@ -27,9 +27,6 @@ param imageDefinitionSettings object = {
   publisher: 'microsoftvisualstudio'
   offer: 'visualstudioplustools'
   sku: 'vs-2022-pro-general-win11-m365-gen2'
-  // publisher: 'MicrosoftVisualStudio'
-  // offer: 'VisualStudio'
-  // sku: 'win11-22h2-ent-cpc-m365'
   version: 'latest'
 }
 
@@ -214,32 +211,28 @@ resource imageTemplateBuild 'Microsoft.Resources/deploymentScripts@2023-08-01' =
   }
 }
 
-resource imageTemplateStatusQuery 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
-  name: resourceNames.queryTemplateProgress
-  location: location
-  kind: 'AzurePowerShell'
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${imgBuilderIdentity.id}': {}
-    }
-  }
-  properties: {
-    azPowerShellVersion: '8.3'
-    scriptContent: 'Connect-AzAccount -Identity; \'Az.ImageBuilder\', \'Az.ManagedServiceIdentity\' | ForEach-Object {Install-Module -Name $_ -AllowPrerelease -Force}; $status=\'Started\'; while ($status -ne \'Succeeded\' -and $status -ne \'Failed\' -and $status -ne \'Cancelled\') { Start-Sleep -Seconds 30;$status = (Get-AzImageBuilderTemplate -ImageTemplateName ${resourceNames.imageTemplateName} -ResourceGroupName ${resourceGroup().name}).LastRunStatusRunState}'  
-    timeout: 'PT3H'
-    cleanupPreference: 'OnSuccess'
-    retentionInterval: 'P1D'
-  }
-  dependsOn: [
-    imageTemplate
-    imageTemplateBuild
-  ]
-}
-
-output galleryName string = azureComputeGallery.name
-output imageDefinitionName string = imageDefinition.name
-output imageTemplateName string = imageTemplate.name
+// resource imageTemplateStatusQuery 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
+//   name: resourceNames.queryTemplateProgress
+//   location: location
+//   kind: 'AzurePowerShell'
+//   identity: {
+//     type: 'UserAssigned'
+//     userAssignedIdentities: {
+//       '${imgBuilderIdentity.id}': {}
+//     }
+//   }
+//   properties: {
+//     azPowerShellVersion: '8.3'
+//     scriptContent: 'Connect-AzAccount -Identity; \'Az.ImageBuilder\', \'Az.ManagedServiceIdentity\' | ForEach-Object {Install-Module -Name $_ -AllowPrerelease -Force}; $status=\'Started\'; while ($status -ne \'Succeeded\' -and $status -ne \'Failed\' -and $status -ne \'Cancelled\') { Start-Sleep -Seconds 30;$status = (Get-AzImageBuilderTemplate -ImageTemplateName ${resourceNames.imageTemplateName} -ResourceGroupName ${resourceGroup().name}).LastRunStatusRunState}'  
+//     timeout: 'PT3H'
+//     cleanupPreference: 'OnSuccess'
+//     retentionInterval: 'P1D'
+//   }
+//   dependsOn: [
+//     imageTemplate
+//     imageTemplateBuild
+//   ]
+// }
 
 
 // TODO: Check if withe existing works
@@ -256,3 +249,7 @@ output imageTemplateName string = imageTemplate.name
 // ------------------
 // OUTPUTS
 // ------------------
+
+output galleryName string = azureComputeGallery.name
+output imageDefinitionName string = imageDefinition.name
+output imageTemplateName string = imageTemplate.name
