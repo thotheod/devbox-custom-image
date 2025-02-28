@@ -3,7 +3,7 @@ using './main.bicep'
 @description('The name of the workload that is being deployed. Up to 10 characters long.')
 @minLength(2)
 @maxLength(10)
-param name = 'ttdevimg05'
+param name = 'ttdevimg09'
 
 @maxLength(80)
 @description('The name of the Azure Compute Gallery. If Empty a new one will be created, other wise the existing one will be used.')

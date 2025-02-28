@@ -1,0 +1,296 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.14.46.61228",
+      "templateHash": "13610027064999507661"
+    }
+  },
+  "parameters": {
+    "name": {
+      "type": "string",
+      "maxLength": 10,
+      "minLength": 2,
+      "metadata": {
+        "description": "The name of the workload that is being deployed. Up to 10 characters long."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Optional. The location for the library. Defaults to the location of the resource group."
+      }
+    },
+    "computeGalleryName": {
+      "type": "string",
+      "maxLength": 80,
+      "metadata": {
+        "description": "The name of the Azure Compute Gallery. If EMPTY a new one will be created, other wise the existing one will be used."
+      }
+    },
+    "imageDefinitionName": {
+      "type": "string",
+      "maxLength": 80,
+      "metadata": {
+        "description": "The name of the image definition in the gallery"
+      }
+    },
+    "imageDefinitionSettings": {
+      "type": "object",
+      "defaultValue": {
+        "publisher": "microsoftvisualstudio",
+        "offer": "visualstudioplustools",
+        "sku": "vs-2022-pro-general-win11-m365-gen2",
+        "version": "latest"
+      },
+      "metadata": {
+        "description": "default settings for the image definition"
+      }
+    },
+    "randomguid": {
+      "type": "string",
+      "defaultValue": "[newGuid()]",
+      "metadata": {
+        "description": "Guid for generating random template name"
+      }
+    }
+  },
+  "variables": {
+    "$fxv#0": "##########################\r\n## Install Chocolatey \r\n##########################\r\nWrite-Host \"Install Chocolatey...\"\r\nSet-ExecutionPolicy Bypass -Scope Process -Force 2>$null; \r\n[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072 2>$null; \r\ntry {\r\n    iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1')) 2>$null\r\n    Write-Host \"Chocolatey installation completed successfully.\"\r\n} catch {\r\n    Write-Host \"An error occurred during the installation of Chocolatey.\"\r\n}\r\n\r\n# ##########################\r\n# ## Install winget\r\n# ##########################\r\n# Write-Host \"Install winget...\"\r\n# if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {\r\n#     try {\r\n#         Invoke-WebRequest -Uri \"https://aka.ms/getwinget\" -OutFile \"$env:TEMP\\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle\" 2>$null\r\n#         Add-AppxPackage -Path \"$env:TEMP\\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle\" 2>$null\r\n#         Write-Host \"winget has been installed.\"\r\n#     } catch {\r\n#         Write-Host \"An error occurred during the installation of winget.\"\r\n#     }\r\n# } else {\r\n#     Write-Host \"winget is already installed.\"\r\n# }\r\n\r\n\r\n##########################\r\n## Enable WSL\r\n##########################\r\nWrite-Host \"Enabling Windows Subsystem for Linux...\"\r\ntry {\r\n    dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart 2>$null\r\n    dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart 2>$null\r\n    Write-Host \"WSL enabled successfully.\"\r\n} catch {\r\n    Write-Host \"An error occurred while enabling WSL.\"\r\n}\r\n\r\n# update WSL to latest version\r\nWrite-Host \"Updating WSL to latest version...\"\r\ntry {\r\n    wsl --update --no-prompt 2>$null\r\n    Write-Host \"WSL updated to the latest version.\"\r\n} catch {\r\n    Write-Host \"An error occurred while updating WSL.\"\r\n}\r\n\r\n## Set WSL default version to 2 (possibly not necessary step - it should default to ver 2)\r\nWrite-Host \"Setting WSL default version to 2...\"\r\ntry {\r\n    wsl --set-default-version 2 --no-prompt 2>$null\r\n    Write-Host \"WSL default version set to 2.\"\r\n} catch {\r\n    Write-Host \"An error occurred while setting WSL default version to 2.\"\r\n}\r\n\r\n\r\n##########################\r\n## Install choco packages\r\n##########################\r\n\r\n## Tooling List\r\n$tools = @(\r\n            \"sql-server-management-studio\", \r\n            \"adobereader\",  \r\n            \"azure-cli\", \r\n            \"notepadplusplus\",\r\n            \"postman\",\r\n            \"nodejs.install\",\r\n            \"git.install\",\r\n            \"gh\",\r\n            \"wsl-ubuntu-2004\",\r\n            \"googlechrome\"\r\n        )\r\n\r\n## Install extra Tools with Chocolatey\r\nforeach ($t in $tools) {\r\n    try {\r\n        choco install -y $t 2>$null\r\n        Write-Host \"Installed: $t\"\r\n    } catch {\r\n        Write-Host \"An error occurred during the installation of $t.\"\r\n    }\r\n}\r\n\r\n\r\n\r\n# ##########################\r\n# ## winget installations\r\n# ##########################\r\n\r\n# ## Install Ubuntu\r\n# Write-Host \"Installing Ubuntu...\"\r\n# try {\r\n#     winget install -e --id Canonical.Ubuntu.2204 --accept-package-agreements --accept-source-agreements 2>$null\r\n#     Write-Host \"Ubuntu installation completed successfully.\"\r\n# } catch {\r\n#     Write-Host \"An error occurred during the installation of Ubuntu.\"\r\n# }\r\n\r\n# # choco googlechrome currently fails, so use winget\r\n# Write-Host \"Installing Google Chrome...\"\r\n# try {\r\n#     winget install -e --id Google.Chrome --accept-package-agreements --accept-source-agreements 2>$null\r\n#     Write-Host \"Google Chrome installation completed successfully.\"\r\n# } catch {\r\n#     Write-Host \"An error occurred during the installation of Google Chrome.\"\r\n# }",
+    "resourceNames": {
+      "azureComputeGalleryName": "[if(equals(parameters('computeGalleryName'), ''), replace(format('gal_{0}', parameters('name')), '-', '_'), parameters('computeGalleryName'))]",
+      "imgBuilderIdenityName": "[format('id-imgbuilder-{0}', parameters('name'))]",
+      "imageTemplateName": "[take(format('{0}_{1}_{2}', parameters('name'), guid(resourceGroup().id), parameters('imageDefinitionName')), 64)]",
+      "imageTemplateBuildName": "[take(format('{0}_{1}_img_build_trigger', parameters('name'), guid(resourceGroup().id)), 64)]",
+      "queryTemplateProgress": "[take(format('{0}_{1}_img_build_query', parameters('name'), guid(resourceGroup().id)), 64)]"
+    },
+    "imgBuilderCustomRoleDefinitionName": "[guid(resourceGroup().id)]",
+    "createNewResources": "[if(equals(parameters('computeGalleryName'), ''), true(), false())]",
+    "readerDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
+    "extraToolsScript": "[split(variables('$fxv#0'), createArray('\r', '\n'))]",
+    "buildCommand": "[format('Invoke-AzResourceAction -ResourceName \"{0}\" -ResourceGroupName \"{1}\" -ResourceType \"Microsoft.VirtualMachineImages/imageTemplates\" -ApiVersion \"2024-02-01\" -Action Run -Force', variables('resourceNames').imageTemplateName, resourceGroup().name)]"
+  },
+  "resources": [
+    {
+      "condition": "[variables('createNewResources')]",
+      "type": "Microsoft.Compute/galleries",
+      "apiVersion": "2024-03-03",
+      "name": "[variables('resourceNames').azureComputeGalleryName]",
+      "location": "[parameters('location')]",
+      "metadata": {
+        "description": "The new azure compute gallery, that will hold the new Custom Image Definition."
+      }
+    },
+    {
+      "type": "Microsoft.Compute/galleries/images",
+      "apiVersion": "2024-03-03",
+      "name": "[format('{0}/{1}', variables('resourceNames').azureComputeGalleryName, parameters('imageDefinitionName'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "hyperVGeneration": "V2",
+        "architecture": "x64",
+        "features": [
+          {
+            "name": "SecurityType",
+            "value": "TrustedLaunch"
+          }
+        ],
+        "identifier": {
+          "offer": "[parameters('imageDefinitionSettings').offer]",
+          "publisher": "[parameters('imageDefinitionSettings').publisher]",
+          "sku": "[parameters('imageDefinitionSettings').sku]"
+        },
+        "osState": "Generalized",
+        "osType": "Windows"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/galleries', variables('resourceNames').azureComputeGalleryName)]"
+      ]
+    },
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2022-01-31-preview",
+      "name": "[variables('resourceNames').imgBuilderIdenityName]",
+      "location": "[parameters('location')]"
+    },
+    {
+      "type": "Microsoft.Authorization/roleDefinitions",
+      "apiVersion": "2022-04-01",
+      "name": "[variables('imgBuilderCustomRoleDefinitionName')]",
+      "properties": {
+        "roleName": "[variables('imgBuilderCustomRoleDefinitionName')]",
+        "description": "Image Builder access to create resources for the image build",
+        "type": "customRole",
+        "permissions": [
+          {
+            "actions": [
+              "Microsoft.Compute/galleries/read",
+              "Microsoft.Compute/galleries/images/read",
+              "Microsoft.Compute/galleries/images/versions/read",
+              "Microsoft.Compute/galleries/images/versions/write",
+              "Microsoft.Compute/images/write",
+              "Microsoft.Compute/images/read",
+              "Microsoft.Compute/images/delete",
+              "Microsoft.Storage/storageAccounts/blobServices/containers/read",
+              "Microsoft.Storage/storageAccounts/blobServices/containers/write",
+              "Microsoft.Resources/deployments/read",
+              "Microsoft.Resources/deploymentScripts/read",
+              "Microsoft.Resources/deploymentScripts/write",
+              "Microsoft.VirtualMachineImages/imageTemplates/run/action",
+              "Microsoft.ContainerInstance/containerGroups/read",
+              "Microsoft.ContainerInstance/containerGroups/write",
+              "Microsoft.ContainerInstance/containerGroups/start/action"
+            ]
+          }
+        ],
+        "assignableScopes": [
+          "[resourceGroup().id]"
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "name": "[guid(resourceGroup().id, format('{0}', resourceId('Microsoft.Authorization/roleDefinitions', variables('imgBuilderCustomRoleDefinitionName'))), resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('resourceNames').imgBuilderIdenityName))]",
+      "properties": {
+        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('imgBuilderCustomRoleDefinitionName'))]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('resourceNames').imgBuilderIdenityName), '2022-01-31-preview').principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Authorization/roleDefinitions', variables('imgBuilderCustomRoleDefinitionName'))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('resourceNames').imgBuilderIdenityName)]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "name": "[guid(resourceGroup().id, variables('readerDefinitionId'), resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('resourceNames').imgBuilderIdenityName))]",
+      "properties": {
+        "roleDefinitionId": "[variables('readerDefinitionId')]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('resourceNames').imgBuilderIdenityName), '2022-01-31-preview').principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('resourceNames').imgBuilderIdenityName)]"
+      ]
+    },
+    {
+      "type": "Microsoft.VirtualMachineImages/imageTemplates",
+      "apiVersion": "2024-02-01",
+      "name": "[variables('resourceNames').imageTemplateName]",
+      "location": "[parameters('location')]",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('resourceNames').imgBuilderIdenityName))]": {}
+        }
+      },
+      "properties": {
+        "buildTimeoutInMinutes": 180,
+        "vmProfile": {
+          "vmSize": "Standard_D8ds_v4",
+          "osDiskSizeGB": 256
+        },
+        "source": {
+          "type": "PlatformImage",
+          "offer": "[parameters('imageDefinitionSettings').offer]",
+          "publisher": "[parameters('imageDefinitionSettings').publisher]",
+          "sku": "[parameters('imageDefinitionSettings').sku]",
+          "version": "[parameters('imageDefinitionSettings').version]"
+        },
+        "customize": [
+          {
+            "type": "PowerShell",
+            "name": "Install Extra Tools",
+            "inline": "[variables('extraToolsScript')]"
+          }
+        ],
+        "distribute": [
+          {
+            "type": "SharedImage",
+            "galleryImageId": "[resourceId('Microsoft.Compute/galleries/images', variables('resourceNames').azureComputeGalleryName, parameters('imageDefinitionName'))]",
+            "runOutputName": "[format('{0}_Output', parameters('imageDefinitionName'))]",
+            "replicationRegions": "[array(parameters('location'))]"
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/galleries/images', variables('resourceNames').azureComputeGalleryName, parameters('imageDefinitionName'))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('resourceNames').imgBuilderIdenityName)]",
+        "[resourceId('Microsoft.Authorization/roleAssignments', guid(resourceGroup().id, format('{0}', resourceId('Microsoft.Authorization/roleDefinitions', variables('imgBuilderCustomRoleDefinitionName'))), resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('resourceNames').imgBuilderIdenityName)))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deploymentScripts",
+      "apiVersion": "2023-08-01",
+      "name": "[variables('resourceNames').imageTemplateBuildName]",
+      "location": "[parameters('location')]",
+      "kind": "AzurePowerShell",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('resourceNames').imgBuilderIdenityName))]": {}
+        }
+      },
+      "properties": {
+        "forceUpdateTag": "[parameters('randomguid')]",
+        "azPowerShellVersion": "8.3",
+        "scriptContent": "[variables('buildCommand')]",
+        "timeout": "PT3H",
+        "cleanupPreference": "OnSuccess",
+        "retentionInterval": "P1D"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.VirtualMachineImages/imageTemplates', variables('resourceNames').imageTemplateName)]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('resourceNames').imgBuilderIdenityName)]",
+        "[resourceId('Microsoft.Authorization/roleAssignments', guid(resourceGroup().id, format('{0}', resourceId('Microsoft.Authorization/roleDefinitions', variables('imgBuilderCustomRoleDefinitionName'))), resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('resourceNames').imgBuilderIdenityName)))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deploymentScripts",
+      "apiVersion": "2023-08-01",
+      "name": "[variables('resourceNames').queryTemplateProgress]",
+      "location": "[parameters('location')]",
+      "kind": "AzurePowerShell",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('resourceNames').imgBuilderIdenityName))]": {}
+        }
+      },
+      "properties": {
+        "azPowerShellVersion": "8.3",
+        "scriptContent": "[format('Connect-AzAccount -Identity; ''Az.ImageBuilder'', ''Az.ManagedServiceIdentity'' | ForEach-Object {{Install-Module -Name $_ -AllowPrerelease -Force}}; $status=''Started''; while ($status -ne ''Succeeded'' -and $status -ne ''Failed'' -and $status -ne ''Cancelled'') {{ Start-Sleep -Seconds 30;$status = (Get-AzImageBuilderTemplate -ImageTemplateName {0} -ResourceGroupName {1}).LastRunStatusRunState}}', variables('resourceNames').imageTemplateName, resourceGroup().name)]",
+        "timeout": "PT3H",
+        "cleanupPreference": "OnSuccess",
+        "retentionInterval": "P1D"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.VirtualMachineImages/imageTemplates', variables('resourceNames').imageTemplateName)]",
+        "[resourceId('Microsoft.Resources/deploymentScripts', variables('resourceNames').imageTemplateBuildName)]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('resourceNames').imgBuilderIdenityName)]"
+      ],
+      "metadata": {
+        "description": "The status of the image template build. It takes around 60+ minutes to complete, so with this the deployment stays active and waits for the image to be built."
+      }
+    }
+  ],
+  "outputs": {
+    "galleryName": {
+      "type": "string",
+      "value": "[variables('resourceNames').azureComputeGalleryName]"
+    },
+    "imageDefinitionName": {
+      "type": "string",
+      "value": "[parameters('imageDefinitionName')]"
+    },
+    "imageTemplateName": {
+      "type": "string",
+      "value": "[variables('resourceNames').imageTemplateName]"
+    }
+  }
+}

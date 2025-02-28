@@ -23,6 +23,7 @@ This repo contains simple Bicep to create a Dev Box Definition with custom Image
 3. Create a Project
 4. Run the the Bicep deployment
 5. Attach the Gallery created by the bicep to the Dev Center
+6. Create a Dev Box Definition in the Dev Center
 
 
 

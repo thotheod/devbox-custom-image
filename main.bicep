@@ -40,7 +40,6 @@ param randomguid string = newGuid()
 var resourceNames = {
    azureComputeGalleryName: computeGalleryName == '' ? replace('gal_${name}', '-', '_' ) : computeGalleryName
    imgBuilderIdenityName: 'id-imgbuilder-${name}'
-  //  imgBuilderCustomRoleDefinitionName: 'role-imgbuilder-${name}-${guid(resourceGroup().id)}'
    imageTemplateName: take('${name}_${guid(resourceGroup().id)}_${imageDefinitionName}',64)
    imageTemplateBuildName: take('${name}_${guid(resourceGroup().id)}_img_build_trigger',64)
    queryTemplateProgress: take('${name}_${guid(resourceGroup().id)}_img_build_query',64)
@@ -49,7 +48,7 @@ var resourceNames = {
 var imgBuilderCustomRoleDefinitionName = guid(resourceGroup().id)
 var createNewResources = computeGalleryName == '' ? true : false
 var readerDefinitionId =  resourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')
-var extraToolsScript = split(loadTextContent('scripts/extratools.ps1'), ['\r','\n'])
+var extraToolsScript = split(loadTextContent('scripts/example.ps1'), ['\r','\n'])
 var buildCommand = 'Invoke-AzResourceAction -ResourceName "${resourceNames.imageTemplateName}" -ResourceGroupName "${resourceGroup().name}" -ResourceType "Microsoft.VirtualMachineImages/imageTemplates" -ApiVersion "2024-02-01" -Action Run -Force'
 
 
