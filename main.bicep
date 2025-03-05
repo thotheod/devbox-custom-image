@@ -13,11 +13,6 @@ param name string
 @description('Optional. The location for the library. Defaults to the location of the resource group.')
 param location string = resourceGroup().location
 
-
-@description('The name of the Azure Compute Gallery. If EMPTY a new one will be created, other wise the existing one will be used.')
-@maxLength(80)
-param computeGalleryName string
-
 @description('The name of the image definition in the gallery') 
 @maxLength(80)
 param imageDefinitionName string
@@ -38,7 +33,7 @@ param randomguid string = newGuid()
 // VARIABLES
 // ------------------
 var resourceNames = {
-   azureComputeGalleryName: computeGalleryName == '' ? replace('gal_${name}', '-', '_' ) : computeGalleryName
+   azureComputeGalleryName: replace('gal_${name}', '-', '_' ) 
    imgBuilderIdenityName: 'id-imgbuilder-${name}'
    imageTemplateName: take('${name}_${guid(resourceGroup().id)}_${imageDefinitionName}',64)
    imageTemplateBuildName: take('${name}_${guid(resourceGroup().id)}_img_build_trigger',64)
@@ -46,9 +41,8 @@ var resourceNames = {
 }
 
 var imgBuilderCustomRoleDefinitionName = guid(resourceGroup().id)
-var createNewResources = computeGalleryName == '' ? true : false
 var readerDefinitionId =  resourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')
-var extraToolsScript = split(loadTextContent('scripts/example.ps1'), ['\r','\n'])
+var extraToolsScript = split(loadTextContent('scripts/extratools.ps1'), ['\r','\n'])
 var buildCommand = 'Invoke-AzResourceAction -ResourceName "${resourceNames.imageTemplateName}" -ResourceGroupName "${resourceGroup().name}" -ResourceType "Microsoft.VirtualMachineImages/imageTemplates" -ApiVersion "2024-02-01" -Action Run -Force'
 
 
@@ -58,7 +52,7 @@ var buildCommand = 'Invoke-AzResourceAction -ResourceName "${resourceNames.image
 // ------------------
 
 @description('The new azure compute gallery, that will hold the new Custom Image Definition.')
-resource azureComputeGallery 'Microsoft.Compute/galleries@2024-03-03' = if (createNewResources) {
+resource azureComputeGallery 'Microsoft.Compute/galleries@2024-03-03' =  {
   name: resourceNames.azureComputeGalleryName
   location: location
 }
@@ -170,6 +164,9 @@ resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2024-02-01
         type: 'PowerShell'
         name: 'Install Extra Tools'
         inline: extraToolsScript
+        runAsSystem: true
+        runElevated: true
+        validExitCodes: [ 0, 1 ]
       }
     ]    
     distribute: [
@@ -202,11 +199,12 @@ resource imageTemplateBuild 'Microsoft.Resources/deploymentScripts@2023-08-01' =
   ]
   properties: {
     forceUpdateTag: randomguid
-    azPowerShellVersion: '8.3'
+    azPowerShellVersion: '9.0'
     scriptContent: buildCommand
     timeout: 'PT3H'
     cleanupPreference: 'OnSuccess'
     retentionInterval: 'P1D'
+    
   }
 }
 
@@ -220,7 +218,7 @@ resource imageTemplateStatusQuery 'Microsoft.Resources/deploymentScripts@2023-08
     userAssignedIdentities: {
       '${imgBuilderIdentity.id}': {}
     }
-  }
+  }  
   properties: {
     azPowerShellVersion: '8.3'
     scriptContent: 'Connect-AzAccount -Identity; \'Az.ImageBuilder\', \'Az.ManagedServiceIdentity\' | ForEach-Object {Install-Module -Name $_ -AllowPrerelease -Force}; $status=\'Started\'; while ($status -ne \'Succeeded\' -and $status -ne \'Failed\' -and $status -ne \'Cancelled\') { Start-Sleep -Seconds 30;$status = (Get-AzImageBuilderTemplate -ImageTemplateName ${resourceNames.imageTemplateName} -ResourceGroupName ${resourceGroup().name}).LastRunStatusRunState}'  
@@ -233,17 +231,6 @@ resource imageTemplateStatusQuery 'Microsoft.Resources/deploymentScripts@2023-08
     imageTemplateBuild
   ]
 }
-
-
-// TODO: Check if withe existing works
-// @description('The new azure compute gallery, that will hold the new Custom Image Definition.')
-// resource azureComputeGalleryExisting 'Microsoft.Compute/galleries@2024-03-03'  existing= if (!createNewResources) {
-//   name: computeGalleryName
-// }
-
-//TODO Add existing resource imageDefinition 'Microsoft.Compute/galleries/images@2024-03-03' = {
-
-//TODO Add existing resource imgBuilderIdenity 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
 
 
 // ------------------

@@ -1,0 +1,172 @@
+Troubleshoot timeout: https://www.reddit.com/r/AZURE/comments/15he141/azure_image_builder_azurearm_image_state_complete/
+
+
+--------------------------------------------
+Iterate 9: Success
+packages: 
+
+## Install Chocolatey 
+Set-ExecutionPolicy Bypass -Scope Process -Force; 
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; 
+iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+
+## Tooling List
+$tools = @(
+            "7zip", "adobereader",  "azure-cli"
+        )
+
+
+---------------------------------------------------------
+
+Iterate 10: 
+packages: fail
+
+## Install Chocolatey 
+Set-ExecutionPolicy Bypass -Scope Process -Force; 
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; 
+iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+
+## Tooling List
+$tools = @(
+            "7zip", "adobereader",  "azure-cli",			
+            "notepadplusplus", "postman", "nodejs.install"
+        )
+
+---------------------------------------------------------
+
+Iterate 11: 
+packages: fail
+
+## Install Chocolatey 
+Set-ExecutionPolicy Bypass -Scope Process -Force; 
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; 
+iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+
+## Tooling List
+$tools = @(
+            "7zip", "adobereader",  "azure-cli",			
+            "notepadplusplus", "postman", "nodejs.install"
+        )
+
+## Install extra Tools with Chocolatey
+foreach ($t in $tools) {
+    choco install -y $t
+    Write-Host "Installed: $t"
+}
+
+---------------------------------------------------------
+
+Iterate 12: 
+packages: ok
+
+## Install Chocolatey 
+Set-ExecutionPolicy Bypass -Scope Process -Force; 
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; 
+iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+
+## Tooling List
+$tools = @(
+            "7zip", "adobereader",  "azure-cli", "nodejs.install", 
+        )
+
+---------------------------------------------------------
+
+Iterate 13: 
+packages: fail
+
+## Install Chocolatey 
+Set-ExecutionPolicy Bypass -Scope Process -Force; 
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; 
+iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+
+## Tooling List
+$tools = @(
+            "7zip", "adobereader",  "azure-cli", "nodejs.install", "notepadplusplus", "postman"
+        
+
+"notepadplusplus" to blame ?!?!?!
+---------------------------------------------------------
+
+Iterate 14: 
+packages: ok
+
+## Install Chocolatey 
+Set-ExecutionPolicy Bypass -Scope Process -Force; 
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; 
+iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+
+## Tooling List
+$tools = @(
+            "7zip", "adobereader",  "azure-cli", "nodejs.install", "postman"
+        )
+---------------------------------------------------------
+
+Iterate 15: 
+packages: OK
+
+## Install Chocolatey 
+Set-ExecutionPolicy Bypass -Scope Process -Force; 
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; 
+iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+
+## Tooling List
+$tools = @(
+            "7zip", "adobereader",  "azure-cli", "nodejs.install", "postman",  "git.install", "sql-server-management-studio",  "gh"
+        )
+		
+---------------------------------------------------------
+
+Iterate 16: 
+packages: fail
+
+Like 15 + 
+- Install winget script
+
+---------------------------------------------------------
+
+Iterate 17: 
+packages: OK ! ! ! but it took 2 hours, 19 min
+
+Like 15 + 
+- Alternative Install winget script
+	Install-Module Microsoft.WinGet.Client -Scope AllUsers -AllowClobber -Force
+    Import-Module Microsoft.WinGet.Client -Force -Global
+
+
+---------------------------------------------------------
+
+Iterate 18: 
+packages: OK
+
+Like 15
+
+---------------------------------------------------------
+
+Iterate 19: 
+packages: OK
+
+Like 17 + 
+- winget installation of google chrome and notpad++
+	Install-PackageWithStatus -packageId 'Notepad++.Notepad++' -packageName "Notepad++"
+	Install-PackageWithStatus -packageId 'googlechrome' -packageName "Google Chrome"
+
+---------------------------------------------------------
+
+Iterate 20: 
+packages: OK (took 135 minutes!)
+
+Like 19 + wsl
+
+---------------------------------------------------------
+
+Iterate 21: 
+packages:
+
+Like 20 + 3 winget packages (Ubuntu, google.chrome, notepadd++)

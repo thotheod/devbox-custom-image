@@ -3,11 +3,8 @@ using './main.bicep'
 @description('The name of the workload that is being deployed. Up to 10 characters long.')
 @minLength(2)
 @maxLength(10)
-param name = 'ttdevimg09'
+param name = 'ttdevimg24'
 
-@maxLength(80)
-@description('The name of the Azure Compute Gallery. If Empty a new one will be created, other wise the existing one will be used.')
-param computeGalleryName = ''
 
 @description('The name of the image definition in the gallery') 
 @maxLength(80)

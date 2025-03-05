@@ -1,6 +1,6 @@
 LOCATION=swedencentral
 # change also the name in BICEPPARAM to follow the index number
-DEPLOYMENT_NAME=custom-devbox-image-09
+DEPLOYMENT_NAME=custom-devbox-image-24
 RG=rg-devbox-test
 
 az deployment group create \
@@ -8,18 +8,3 @@ az deployment group create \
        --resource-group $RG \
        --name $DEPLOYMENT_NAME \
        --parameters main.bicepparam
-
-
-
-
-az devcenter admin devbox-definition create  \
-       --location $LOCATION \
-       --image-reference id="/subscriptions/$subid/resourceGroups/Example/providers/Microsoft.DevCenter/devcenters/Contoso/galleries/contosogallery/images/exampleImage/version/1.0.0" 
-       --os-storage-type "ssd_1024gb" 
-       --sku name="general_a_8c32gb_v1" 
-       --name "WebDevBox" 
-       --dev-center-name "Contoso" 
-       --resource-group "rg1"
-
-
-       
