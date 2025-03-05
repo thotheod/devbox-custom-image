@@ -6,6 +6,7 @@ Write-Host "Enabling Windows Subsystem for Linux..."
 try {
     dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart 
     dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+
     Write-Host "WSL enabled successfully."
 } catch {
     Write-Host "An error occurred while enabling WSL."
@@ -46,7 +47,7 @@ Write-Host "Installing winget..."
 try {
     # Download the latest App Installer package which includes winget
     $wingetInstallerUrl = "https://aka.ms/getwinget"
-    $wingetInstallerPath = "C:\Windows\TEMP\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
+    $wingetInstallerPath = "C:\Windows\Temp\winget.msixbundle"
     
     Invoke-WebRequest -Uri $wingetInstallerUrl -OutFile $wingetInstallerPath
     Write-Host "winget has been downloaded."
@@ -77,7 +78,8 @@ try {
 Write-Host "Installing Google Chrome..."
 try {
     winget install -e -h --id Google.Chrome --accept-package-agreements --accept-source-agreements --force --disable-interactivity --nowarn
-    Write-Host "Ubuntu installation completed successfully."
+
+    Write-Host "Google Chrome installation completed successfully."
 } catch {
     Write-Host "An error occurred during the installation of Google Chrome."
     Write-Host "Error details: $_"
