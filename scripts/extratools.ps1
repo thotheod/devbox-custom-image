@@ -40,50 +40,51 @@ Set-ExecutionPolicy Bypass -Scope Process -Force;
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; 
 iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 
-##########################
-## Install winget
-##########################
-Write-Host "Installing winget..."
-try {
-    # Download the latest App Installer package which includes winget
-    $wingetInstallerUrl = "https://aka.ms/getwinget"
-    $wingetInstallerPath = "C:\Windows\Temp\winget.msixbundle"
+# # Note: It gets an error : winget 0x80073CF9
+# ##########################
+# ## Install winget
+# ##########################
+# Write-Host "Installing winget..."
+# try {
+#     # Download the latest App Installer package which includes winget
+#     $wingetInstallerUrl = "https://aka.ms/getwinget"
+#     $wingetInstallerPath = "C:\Windows\Temp\winget.msixbundle"
     
-    Invoke-WebRequest -Uri $wingetInstallerUrl -OutFile $wingetInstallerPath
-    Write-Host "winget has been downloaded."
+#     Invoke-WebRequest -Uri $wingetInstallerUrl -OutFile $wingetInstallerPath
+#     Write-Host "winget has been downloaded."
 
-    # Install the App Installer package
-    Add-AppxPackage -Path $wingetInstallerPath    
-    Write-Host "winget has been installed successfully!"
-} catch {
-    Write-Host "An error occurred during the installation of winget!"
-    Write-Host "Error details: $_"
-}
+#     # Install the App Installer package
+#     Add-AppxPackage -Path $wingetInstallerPath    
+#     Write-Host "winget has been installed successfully!"
+# } catch {
+#     Write-Host "An error occurred during the installation of winget!"
+#     Write-Host "Error details: $_"
+# }
 
-# ...existing code...
+# # ...existing code...
 
-##########################
-## Install winget packages
-##########################
+# ##########################
+# ## Install winget packages
+# ##########################
 
-Write-Host "Installing Ubuntu..."
-try {
-    winget install -e -h --id Canonical.Ubuntu.2204 --accept-package-agreements --accept-source-agreements --force --disable-interactivity --nowarn
-    Write-Host "Ubuntu installation completed successfully."
-} catch {
-    Write-Host "An error occurred during the installation of Ubuntu."
-    Write-Host "Error details: $_"
-}
+# Write-Host "Installing Ubuntu..."
+# try {
+#     winget install -e -h --id Canonical.Ubuntu.2204 --accept-package-agreements --accept-source-agreements --force --disable-interactivity --nowarn
+#     Write-Host "Ubuntu installation completed successfully."
+# } catch {
+#     Write-Host "An error occurred during the installation of Ubuntu."
+#     Write-Host "Error details: $_"
+# }
 
-Write-Host "Installing Google Chrome..."
-try {
-    winget install -e -h --id Google.Chrome --accept-package-agreements --accept-source-agreements --force --disable-interactivity --nowarn
+# Write-Host "Installing Google Chrome..."
+# try {
+#     winget install -e -h --id Google.Chrome --accept-package-agreements --accept-source-agreements --force --disable-interactivity --nowarn
 
-    Write-Host "Google Chrome installation completed successfully."
-} catch {
-    Write-Host "An error occurred during the installation of Google Chrome."
-    Write-Host "Error details: $_"
-}
+#     Write-Host "Google Chrome installation completed successfully."
+# } catch {
+#     Write-Host "An error occurred during the installation of Google Chrome."
+#     Write-Host "Error details: $_"
+# }
 
 # Write-Host "Installing Notepad++..."
 # try {
@@ -98,9 +99,10 @@ try {
 ## Install extra Tools with Chocolatey
 ######################################
 
+# google chrome latest version fails with checksum mismatch - lets try a previous version (Feb 2025)
 ## Tooling List
 $tools = @(
-            "7zip", "adobereader",  "azure-cli", "nodejs.install", "postman",  "git.install", "sql-server-management-studio",  "gh", "googlechrome", "notepadplusplus"
+            "7zip", "adobereader",  "azure-cli", "nodejs.install", "postman",  "git.install", "sql-server-management-studio",  "gh", "googlechrome --version=133.0.6943.142", "notepadplusplus"
         )
 
 ## Install extra Tools with Chocolatey
