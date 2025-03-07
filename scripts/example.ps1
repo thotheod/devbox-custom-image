@@ -36,22 +36,32 @@ Set-ExecutionPolicy Bypass -Scope Process -Force;
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; 
 iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 
-##########################
-## Install winget
-##########################
-# Write-Host "Install winget..."
-# # Must be run from w/in Powershell (Core)
-try {
-    Install-Module Microsoft.WinGet.Client -Scope AllUsers -AllowClobber -Force
-    Import-Module Microsoft.WinGet.Client -Force -Global
-    Write-Host "winget has been installed."
-} catch {
-    Write-Host "An error occurred during the installation of winget."
-}
+# # Note: It gets an error : winget 0x80073CF9
+# ##########################
+# ## Install winget
+# ##########################
+# Write-Host "Installing winget..."
+# try {
+#     # Download the latest App Installer package which includes winget
+#     $wingetInstallerUrl = "https://aka.ms/getwinget"
+#     $wingetInstallerPath = "C:\Windows\Temp\winget.msixbundle"
+    
+#     Invoke-WebRequest -Uri $wingetInstallerUrl -OutFile $wingetInstallerPath
+#     Write-Host "winget has been downloaded."
 
-##########################
-## Install winget packages
-##########################
+#     # Install the App Installer package
+#     Add-AppxPackage -Path $wingetInstallerPath    
+#     Write-Host "winget has been installed successfully!"
+# } catch {
+#     Write-Host "An error occurred during the installation of winget!"
+#     Write-Host "Error details: $_"
+# }
+
+# # ...existing code...
+
+# ##########################
+# ## Install winget packages
+# ##########################
 
 # Write-Host "Installing Ubuntu..."
 # try {
@@ -59,20 +69,23 @@ try {
 #     Write-Host "Ubuntu installation completed successfully."
 # } catch {
 #     Write-Host "An error occurred during the installation of Ubuntu."
+#     Write-Host "Error details: $_"
 # }
 
 # Write-Host "Installing Google Chrome..."
 # try {
 #     winget install -e -h --id Google.Chrome --accept-package-agreements --accept-source-agreements --force --disable-interactivity --nowarn
-#     Write-Host "Ubuntu installation completed successfully."
+
+#     Write-Host "Google Chrome installation completed successfully."
 # } catch {
 #     Write-Host "An error occurred during the installation of Google Chrome."
+#     Write-Host "Error details: $_"
 # }
 
 # Write-Host "Installing Notepad++..."
 # try {
 #     winget install -e -h --id Notepad++.Notepad++ --accept-package-agreements --accept-source-agreements --force --disable-interactivity --nowarn
-#     Write-Host "Ubuntu installation completed successfully."
+#     Write-Host "Notepad++ installation completed successfully."
 # } catch {
 #     Write-Host "An error occurred during the installation of Notepad++."
 # }
