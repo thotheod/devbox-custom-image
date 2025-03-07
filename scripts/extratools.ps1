@@ -1,3 +1,10 @@
+##########################
+## Install Chocolatey 
+##########################
+Set-ExecutionPolicy Bypass -Scope Process -Force; 
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; 
+iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
 
 ##########################
 ## Enable WSL
@@ -16,29 +23,22 @@ try {
 # update WSL to latest version
 Write-Host "Updating WSL to latest version..."
 try {
-    wsl --update --no-prompt 
+    wsl --update
     Write-Host "WSL updated to the latest version."
 } catch {
     Write-Host "An error occurred while updating WSL."
     Write-Host "Error details: $_"
 }
 
-## Set WSL default version to 2 (possibly not necessary step - it should default to ver 2)
-Write-Host "Setting WSL default version to 2..."
+## Set Ubuntu 22.02
+Write-Host "installing Ubuntu 22.02"
 try {
-    wsl --set-default-version 2 --no-prompt 
-    Write-Host "WSL default version set to 2."
+    wsl.exe --install -d Ubuntu-22.02
+    Write-Host "Installed Ubuntu 22.02."
 } catch {
-    Write-Host "An error occurred while setting WSL default version to 2."
+    Write-Host "An error occurred while installing Ubuntu 22.02."
     Write-Host "Error details: $_"
 }
-
-##########################
-## Install Chocolatey 
-##########################
-Set-ExecutionPolicy Bypass -Scope Process -Force; 
-[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; 
-iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 
 ######################################
 ## Install extra Tools with Chocolatey

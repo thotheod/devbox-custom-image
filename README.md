@@ -28,7 +28,7 @@ This repo contains simple Bicep to create a Dev Box Definition with custom Image
 ### WSL in custom image
 The custom image created by the Bicep is having WSL2 installed. The WSL2 is enabled and updated, but when you boot for the first time it asks you to update WSL again (currently to version 2.4.11).
 - to update open a terminal with administrator rights and run `wsl.exe --update`. 
-- To install UBUNTU 22.04 run `wsl.exe --install -d Ubuntu-22.04`
+- To install UBUNTU 22.04 run `wsl.exe --install -d Ubuntu-22.02`
     - Alternatively you can install UBUNTU 24.04 with `wsl.exe --install -d Ubuntu-24.04`
 
 
