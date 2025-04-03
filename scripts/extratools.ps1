@@ -46,9 +46,14 @@ try {
 
 # google chrome latest version may fail with checksum mismatch -
 ## Tooling List
+# $tools = @(
+#             "7zip", "adobereader",  "azure-cli", "nodejs.install", "postman",  "git.install", "sql-server-management-studio",  "gh", "googlechrome", "notepadplusplus"
+#         )
+# git, gh, azure-cli are included in the base image
 $tools = @(
-            "7zip", "adobereader",  "azure-cli", "nodejs.install", "postman",  "git.install", "sql-server-management-studio",  "gh", "googlechrome", "notepadplusplus"
-        )
+    "7zip", "adobereader", "nodejs.install", "postman", "sql-server-management-studio",  "googlechrome", "notepadplusplus", "podman-desktop"
+)
+
 
 ## Install extra Tools with Chocolatey
 foreach ($t in $tools) {

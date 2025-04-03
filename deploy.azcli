@@ -1,6 +1,6 @@
 LOCATION=swedencentral
 # change also the name in BICEPPARAM to follow the index number
-DEPLOYMENT_NAME=custom-devbox-image-27
+DEPLOYMENT_NAME=custom-devbox-image-29
 RG=rg-devbox-test
 
 az deployment group create \

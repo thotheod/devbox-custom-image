@@ -17,6 +17,7 @@ param location string = resourceGroup().location
 @maxLength(80)
 param imageDefinitionName string
 
+//sku can also be 'vs-2022-ent-general-win11-m365-gen2' or 'vs-2022-community-general-win11-m365-gen2'
 @description('default settings for the image definition') 
 param imageDefinitionSettings object = {
   publisher: 'microsoftvisualstudio'
@@ -24,6 +25,14 @@ param imageDefinitionSettings object = {
   sku: 'vs-2022-pro-general-win11-m365-gen2'
   version: 'latest'
 }
+
+// //base image without VS: Windows client for developers (Microsoft Dev Box compatible
+// param imageDefinitionSettings object = {
+//   publisher: 'microsoftvisualstudio'
+//   offer: 'windowsplustools'
+//   sku: 'base-win11-gen2'
+//   version: 'latest'
+// }
 
 @description('Guid for generating random template name')
 param randomguid string = newGuid()
